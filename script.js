@@ -42,49 +42,56 @@ const ragaSanskritNames = {
     "Adana": "अदाना"
 };
 
-// Time-based Raga data (based on image reference)
+// Time-based Raga data (based on the provided image)
 const ragaTimeMap = {
+    // Midnight (12-2 AM)
+    midnight: {
+        name: "Midnight (0:00-2:00 AM)",
+        koreanTime: "축시 (丑時)",
+        themeClass: "theme-midnight",
+        ragas: ["Malkauns", "Darbari Kanada", "Adana", "Sahana"]
+    },
     // Pre-dawn (2-4 AM)
     preDawn: {
         name: "Pre-dawn (2:00-4:00 AM)",
         koreanTime: "인시 (寅時)",
         themeClass: "theme-predawn",
-        ragas: ["Sohini", "Paraj", "Lalit", "Bhatiyar"]
+        ragas: ["Sohini", "Paraj"]
     },
     // Dawn (4-6 AM)
     dawn: {
         name: "Dawn (4:00-6:00 AM)",
         koreanTime: "묘시 (卯時)",
         themeClass: "theme-dawn",
-        ragas: ["Lalit", "Bhatiyar", "Ramkali", "Jogiya"]
+        ragas: ["Bhatiyar", "Lalit"]
     },
     // Early Morning (6-8 AM)
     earlyMorning: {
         name: "Early Morning (6:00-8:00 AM)",
         koreanTime: "진시 (辰時)",
         themeClass: "theme-early-morning",
-        ragas: ["Bhairav", "Ramkali", "Jogiya", "Ahir Bhairav", "Bhairavi", "Todi"]
+        ragas: ["Bhairav", "Ramkali", "Jogiya"]
     },
     // Morning (8-10 AM)
     morning: {
         name: "Morning (8:00-10:00 AM)",
         koreanTime: "사시 (巳時)",
         themeClass: "theme-morning",
-        ragas: ["Ahir Bhairav", "Alhaiya Bilawal", "Todi", "Deshkar", "Bhairavi"]
+        ragas: ["Ahir Bhairav", "Bilaskhani Todi", "Komal Rishab Asavari", "Todi"]
     },
     // Late Morning (10-12 PM)
     lateMorning: {
         name: "Late Morning (10:00-12:00 PM)",
         koreanTime: "오시 (午時)",
         themeClass: "theme-late-morning",
-        ragas: ["Bilawal", "Alhaiya", "Deshkar", "Brindavani Sarang", "Shuddh Sarang"]
+        ragas: ["Bhairavi", "Deshkar", "Alhaiya Bilawal", "Jaunpuri"]
     },
     // Noon (12-2 PM)
     noon: {
         name: "Noon (12:00-2:00 PM)",
         koreanTime: "미시 (未時)",
         themeClass: "theme-noon",
-        ragas: ["Shuddh Sarang", "Madhyamad Sarang", "Bhimpalasi", "Multani"]
+        ragas: ["Brindavani Sarang", "Shuddh Sarang", "Gaud Sarang"]
     },
     // Afternoon (2-4 PM)
     afternoon: {
@@ -98,35 +105,28 @@ const ragaTimeMap = {
         name: "Late Afternoon (4:00-6:00 PM)",
         koreanTime: "유시 (酉時)",
         themeClass: "theme-late-afternoon",
-        ragas: ["Poorvi", "Shree", "Patdeep", "Puriya"]
+        ragas: ["Poorvi", "Shree", "Patdeep", "Marwa"]
     },
     // Evening (6-8 PM)
     evening: {
         name: "Evening (6:00-8:00 PM)",
         koreanTime: "술시 (戌時)",
         themeClass: "theme-evening",
-        ragas: ["Marwa", "Shree", "Puriya", "Yaman", "Hambeer"]
+        ragas: ["Puriya", "Hameer", "Yaman", "Shuddh Kalyan"]
     },
     // Night (8-10 PM)
     night: {
         name: "Night (8:00-10:00 PM)",
         koreanTime: "해시 (亥時)",
         themeClass: "theme-night",
-        ragas: ["Yaman", "Kedar", "Durga", "Hameer", "Jhinjhoti"]
+        ragas: ["Jaijaiwanti", "Kedar", "Durga", "Desh"]
     },
     // Late Night (10-12 AM)
     lateNight: {
         name: "Late Night (10:00-12:00 AM)",
         koreanTime: "자시 (子時)",
         themeClass: "theme-late-night",
-        ragas: ["Bageshri", "Bihag", "Shuddh Kalyan", "Chandra", "Kauns", "Kamod"]
-    },
-    // Midnight (12-2 AM)
-    midnight: {
-        name: "Midnight (0:00-2:00 AM)",
-        koreanTime: "축시 (丑時)",
-        themeClass: "theme-midnight",
-        ragas: ["Malkauns", "Darbari", "Kanada", "Adana", "Shahana"]
+        ragas: ["Bihag", "Bageshri", "Shankara", "Chandrakauns", "Jhinjhoti"]
     }
 };
 
@@ -220,10 +220,9 @@ function showRagaSelection() {
 // Show instrument selection
 function showInstrumentSelection() {
     const content = document.getElementById('content');
-    const sanskritName = ragaSanskritNames[selectedRaga] || "";
 
     let html = `<button class="btn back-btn">Back</button>`;
-    html += `<h2>${selectedRaga} ${sanskritName}</h2>`;
+    html += `<h2>${selectedRaga}</h2>`;
     html += '<div class="instrument-list">';
 
     // Instruments are already sorted alphabetically in the array
