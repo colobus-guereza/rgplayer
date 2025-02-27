@@ -177,6 +177,7 @@ main {
     flex-direction: column;
     overflow: hidden;
     position: relative;
+    padding-top: 10px;
 }
 
 .content-scroll {
@@ -210,10 +211,11 @@ main {
 
 .back-btn {
     position: relative;
-    margin-bottom: 20px;
+    margin: 0 0 20px 0;
     width: 120px;
     z-index: 10;
     background: rgba(150, 150, 150, 0.7) !important;
+    display: inline-block;
 }
 
 .back-btn:hover {
@@ -413,6 +415,10 @@ footer {
     
     .back-btn {
         margin-bottom: 15px;
+    }
+    
+    main {
+        padding-top: 5px;
     }
 }
 
