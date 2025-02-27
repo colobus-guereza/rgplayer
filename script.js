@@ -173,31 +173,44 @@ function showRagaSelection() {
 function navigateBack() {
     if (navigationHistory.length > 0) {
         const lastPage = navigationHistory.pop();
+
+        // 디버깅용 로그 - 실제 배포 시 제거 가능
+        console.log('Navigating back to:', lastPage.page, navigationHistory);
+
         if (lastPage.page === 'thaatSelection') {
-            showThaatSelection();
+            showThaatSelection(true); // true는 뒤로가기 중임을 의미
         } else if (lastPage.page === 'thaatBasedRaga') {
-            showThaatBasedRagaSelection(lastPage.thaat);
+            showThaatBasedRagaSelection(lastPage.thaat, true);
         } else if (lastPage.page === 'timeSelection') {
-            showOtherTimesSelection();
+            showOtherTimesSelection(true);
         } else if (lastPage.page === 'timeBasedRaga') {
-            showTimeBasedRagaSelection(lastPage.timeSlot, false);
+            showTimeBasedRagaSelection(lastPage.timeSlot, false, true);
+        } else if (lastPage.page === 'home') {
+            // 홈으로 돌아갈 때는 히스토리를 초기화
+            navigationHistory = [];
+            showRagaSelection();
         } else {
+            // 예상치 못한 상태일 경우 히스토리 초기화하고 홈으로
+            navigationHistory = [];
             showRagaSelection();
         }
     } else {
+        // 히스토리가 비어있으면 홈으로
         showRagaSelection();
     }
 }
 
 // Show selection of other time periods
-function showOtherTimesSelection() {
+function showOtherTimesSelection(isBackNavigation = false) {
     const content = document.getElementById('content');
     const currentTimeSlot = getCurrentTimeSlot();
 
-    // Save current page to navigation history
-    navigationHistory.push({
-        page: 'home'
-    });
+    // 뒤로가기가 아닐 때만 히스토리에 추가
+    if (!isBackNavigation) {
+        navigationHistory.push({
+            page: 'home'
+        });
+    }
 
     let html = `<button class="btn back-btn">Back</button>`;
     html += `<h2>Select Time Period</h2>`;
@@ -227,16 +240,19 @@ function showOtherTimesSelection() {
     document.querySelectorAll('.time-btn').forEach(button => {
         button.addEventListener('click', function () {
             const selectedTime = this.getAttribute('data-time');
+
+            // 시간 버튼 클릭 시 히스토리에 추가
             navigationHistory.push({
                 page: 'timeSelection'
             });
+
             showTimeBasedRagaSelection(selectedTime, false);
         });
     });
 }
 
 // Show the ragas for a specific time slot
-function showTimeBasedRagaSelection(timeSlot, isCurrentTime = null) {
+function showTimeBasedRagaSelection(timeSlot, isCurrentTime = null, isBackNavigation = false) {
     selectedTimeSlot = timeSlot;
     applyTimeBasedTheme();
 
@@ -276,7 +292,7 @@ function showTimeBasedRagaSelection(timeSlot, isCurrentTime = null) {
 
         // Add navigation buttons
         html += '<div class="nav-buttons">';
-        html += '<button class="btn nav-btn" id="other-times-btn">In other times</button>';
+        html += '<button class="btn nav-btn" id="other-times-btn">In outer times</button>';
         html += '<button class="btn nav-btn" id="by-thaat-btn">By Thaat</button>';
         html += '</div>';
     }
@@ -305,21 +321,27 @@ function showTimeBasedRagaSelection(timeSlot, isCurrentTime = null) {
     // Add event listeners for navigation buttons on current time page
     if (isCurrentTime) {
         // Handle Other Times button click
-        document.getElementById('other-times-btn').addEventListener('click', showOtherTimesSelection);
+        document.getElementById('other-times-btn').addEventListener('click', function () {
+            showOtherTimesSelection();
+        });
 
         // Handle By Thaat button click
-        document.getElementById('by-thaat-btn').addEventListener('click', showThaatSelection);
+        document.getElementById('by-thaat-btn').addEventListener('click', function () {
+            showThaatSelection();
+        });
     }
 }
 
 // Show Thaat selection
-function showThaatSelection() {
+function showThaatSelection(isBackNavigation = false) {
     const content = document.getElementById('content');
 
-    // Save current page to navigation history
-    navigationHistory.push({
-        page: 'home'
-    });
+    // 뒤로가기가 아닐 때만 히스토리에 추가
+    if (!isBackNavigation) {
+        navigationHistory.push({
+            page: 'home'
+        });
+    }
 
     let html = `<button class="btn back-btn">Back</button>`;
     html += `<h2>Select Thaat</h2>`;
@@ -346,13 +368,15 @@ function showThaatSelection() {
 }
 
 // Show ragas based on selected Thaat
-function showThaatBasedRagaSelection(thaat) {
+function showThaatBasedRagaSelection(thaat, isBackNavigation = false) {
     const content = document.getElementById('content');
 
-    // Record navigation history
-    navigationHistory.push({
-        page: 'thaatSelection'
-    });
+    // 뒤로가기가 아닐 때만 히스토리에 추가
+    if (!isBackNavigation) {
+        navigationHistory.push({
+            page: 'thaatSelection'
+        });
+    }
 
     let html = `<button class="btn back-btn">Back</button>`;
     html += `<h2>${thaat} Thaat</h2>`;
