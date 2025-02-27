@@ -83,12 +83,15 @@ body {
     margin: 0 auto;
     padding: 20px;
     min-height: auto;
+    height: 100vh;
+    max-height: 800px;
     display: flex;
     flex-direction: column;
     background-color: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
+    overflow: hidden;
 }
 
 /* Theme-based container styles */
@@ -130,10 +133,11 @@ body {
 
 header {
     text-align: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
     border-bottom: 2px solid rgba(193, 152, 117, 0.5);
     position: relative;
+    flex-shrink: 0;
 }
 
 header::after {
@@ -155,9 +159,10 @@ h1 {
 }
 
 h2 {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     text-align: center;
     font-size: 1.3rem;
+    flex-shrink: 0;
 }
 
 #current-time {
@@ -168,6 +173,32 @@ h2 {
 
 main {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+.content-scroll {
+    overflow-y: auto;
+    max-height: calc(100% - 40px);
+    padding-right: 5px;
+    margin-right: -5px;
+    scrollbar-width: thin;
+}
+
+.content-scroll::-webkit-scrollbar {
+    width: 5px;
+}
+
+.content-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.content-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
 }
 
 .raga-list, .instrument-list, .time-list, .thaat-list {
@@ -177,11 +208,20 @@ main {
     margin-bottom: 20px;
 }
 
+.back-btn {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    margin-bottom: 0;
+}
+
 .divider {
     height: 1px;
     background-color: rgba(193, 152, 117, 0.5);
-    margin: 20px 0;
+    margin: 15px 0;
     width: 100%;
+    flex-shrink: 0;
 }
 
 .nav-buttons {
@@ -189,6 +229,7 @@ main {
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
     margin-bottom: 20px;
+    flex-shrink: 0;
 }
 
 /* Theme-based button styles */
@@ -338,9 +379,10 @@ main {
 
 footer {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 15px;
     font-size: 0.9rem;
-    padding-top: 15px;
+    padding-top: 10px;
+    flex-shrink: 0;
 }
 
 @media (max-width: 480px) {
@@ -348,12 +390,13 @@ footer {
         padding: 15px;
         width: 100%;
         height: 100vh;
+        max-height: none;
         border-radius: 0;
-        justify-content: center;
     }
     
     body {
         display: block;
+        overflow: hidden;
     }
     
     h1 {
@@ -362,6 +405,7 @@ footer {
     
     h2 {
         font-size: 1.1rem;
+        margin-top: 20px;
     }
     
     .btn {
@@ -371,6 +415,11 @@ footer {
     
     footer {
         margin-top: 10px;
+    }
+    
+    .back-btn {
+        top: -5px;
+        left: -5px;
     }
 }
 
