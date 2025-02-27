@@ -292,7 +292,7 @@ function showTimeBasedRagaSelection(timeSlot, isCurrentTime = null, isBackNaviga
 
         // Add navigation buttons
         html += '<div class="nav-buttons">';
-        html += '<button class="btn nav-btn" id="other-times-btn">In outer times</button>';
+        html += '<button class="btn nav-btn" id="other-times-btn">In other times</button>';
         html += '<button class="btn nav-btn" id="by-thaat-btn">By Thaat</button>';
         html += '</div>';
     }
