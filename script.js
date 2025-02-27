@@ -168,76 +168,6 @@ function showRagaSelection() {
     showTimeBasedRagaSelection(currentTimeSlot);
 }
 
-// Show the ragas for a specific time slot
-function showTimeBasedRagaSelection(timeSlot) {
-    selectedTimeSlot = timeSlot;
-    applyTimeBasedTheme();
-
-    const content = document.getElementById('content');
-    const currentTimeSlot = getCurrentTimeSlot();
-
-    let html = '';
-
-    // Add back button for non-home pages
-    if (timeSlot !== currentTimeSlot) {
-        html += `<button class="btn back-btn">Back</button>`;
-    }
-
-    html += `<h2>${ragaTimeMap[timeSlot].name}</h2>`;
-    html += '<div class="raga-list">';
-
-    // Sort ragas alphabetically
-    const sortedRagas = [...ragaTimeMap[timeSlot].ragas].sort();
-
-    sortedRagas.forEach(raga => {
-        html += `<button class="btn raga-btn" data-raga="${raga}">${raga}</button>`;
-    });
-
-    html += '</div>';
-
-    // Only show navigation options on the home page (current time)
-    if (timeSlot === currentTimeSlot) {
-        // Add a divider
-        html += '<div class="divider"></div>';
-
-        // Add discover title
-        html += '<p class="discover-title">Discover another raga</p>';
-
-        // Add navigation buttons
-        html += '<div class="nav-buttons">';
-        html += '<button class="btn nav-btn" id="other-times-btn">From Other Times</button>';
-        html += '<button class="btn nav-btn" id="by-thaat-btn">By Thaat</button>';
-        html += '</div>';
-    }
-
-    content.innerHTML = html;
-
-    // Add event listeners
-    document.querySelectorAll('.raga-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            selectedRaga = this.getAttribute('data-raga');
-            showInstrumentSelection();
-        });
-    });
-
-    // Handle back button click for non-home pages
-    if (timeSlot !== currentTimeSlot) {
-        document.querySelector('.back-btn').addEventListener('click', function () {
-            selectedTimeSlot = currentTimeSlot;
-            showRagaSelection();
-        });
-    }
-
-    // Add event listeners for navigation buttons on home page
-    if (timeSlot === currentTimeSlot) {
-        // Handle Other Times button click
-        document.getElementById('other-times-btn').addEventListener('click', showOtherTimesSelection);
-
-        // Handle By Thaat button click
-        document.getElementById('by-thaat-btn').addEventListener('click', showThaatSelection);
-    }
-}
-
 // Show selection of other time periods
 function showOtherTimesSelection() {
     const content = document.getElementById('content');
@@ -265,15 +195,93 @@ function showOtherTimesSelection() {
     content.innerHTML = html;
 
     // Add event listener to back button
-    document.querySelector('.back-btn').addEventListener('click', showRagaSelection);
+    document.querySelector('.back-btn').addEventListener('click', function () {
+        selectedTimeSlot = currentTimeSlot; // Reset to current time
+        showRagaSelection();
+    });
 
     // Add event listeners to time buttons
     document.querySelectorAll('.time-btn').forEach(button => {
         button.addEventListener('click', function () {
             const selectedTime = this.getAttribute('data-time');
-            showTimeBasedRagaSelection(selectedTime);
+            showTimeBasedRagaSelection(selectedTime, false); // false indicates not current time
         });
     });
+}
+
+// Show the ragas for a specific time slot
+// Added isCurrentTime parameter to explicitly control navigation display
+function showTimeBasedRagaSelection(timeSlot, isCurrentTime = null) {
+    selectedTimeSlot = timeSlot;
+    applyTimeBasedTheme();
+
+    // If isCurrentTime is not provided, determine based on current time
+    if (isCurrentTime === null) {
+        isCurrentTime = (timeSlot === getCurrentTimeSlot());
+    }
+
+    const content = document.getElementById('content');
+
+    let html = '';
+
+    // Always show back button for non-current time pages
+    if (!isCurrentTime) {
+        html += `<button class="btn back-btn">Back</button>`;
+    }
+
+    html += `<h2>${ragaTimeMap[timeSlot].name}</h2>`;
+    html += '<div class="raga-list">';
+
+    // Sort ragas alphabetically
+    const sortedRagas = [...ragaTimeMap[timeSlot].ragas].sort();
+
+    sortedRagas.forEach(raga => {
+        html += `<button class="btn raga-btn" data-raga="${raga}">${raga}</button>`;
+    });
+
+    html += '</div>';
+
+    // Only show navigation options on the current time page
+    if (isCurrentTime) {
+        // Add a divider
+        html += '<div class="divider"></div>';
+
+        // Add discover title
+        html += '<p class="discover-title">Discover another raga</p>';
+
+        // Add navigation buttons
+        html += '<div class="nav-buttons">';
+        html += '<button class="btn nav-btn" id="other-times-btn">From Other Times</button>';
+        html += '<button class="btn nav-btn" id="by-thaat-btn">By Thaat</button>';
+        html += '</div>';
+    }
+
+    content.innerHTML = html;
+
+    // Add event listeners to raga buttons
+    document.querySelectorAll('.raga-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            selectedRaga = this.getAttribute('data-raga');
+            showInstrumentSelection();
+        });
+    });
+
+    // Add event listener to back button for non-current time pages
+    if (!isCurrentTime) {
+        document.querySelector('.back-btn').addEventListener('click', function () {
+            // For time-based selection, go back to time selection
+            showOtherTimesSelection();
+        });
+    }
+
+    // Add event listeners for navigation buttons on current time page
+    if (isCurrentTime) {
+        // Handle Other Times button click
+        document.getElementById('other-times-btn').addEventListener('click', showOtherTimesSelection);
+
+        // Handle By Thaat button click
+        document.getElementById('by-thaat-btn').addEventListener('click', showThaatSelection);
+    }
 }
 
 // Show Thaat selection
