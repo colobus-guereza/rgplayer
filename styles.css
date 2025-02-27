@@ -170,7 +170,21 @@ main {
     flex: 1;
 }
 
-.raga-list, .instrument-list {
+.raga-list, .instrument-list, .time-list, .thaat-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.divider {
+    height: 1px;
+    background-color: rgba(193, 152, 117, 0.5);
+    margin: 20px 0;
+    width: 100%;
+}
+
+.nav-buttons {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
@@ -304,20 +318,29 @@ main {
     left: 100%;
 }
 
-.back-btn {
+.back-btn, #home-btn {
     background: rgba(150, 150, 150, 0.7) !important;
     margin-bottom: 20px;
     width: 120px;
 }
 
-.back-btn:hover {
+.back-btn:hover, #home-btn:hover {
     background: rgba(120, 120, 120, 0.7) !important;
+}
+
+.nav-btn {
+    background: rgba(100, 100, 100, 0.7) !important;
+}
+
+.nav-btn:hover {
+    background: rgba(80, 80, 80, 0.7) !important;
 }
 
 footer {
     text-align: center;
     margin-top: 20px;
     font-size: 0.9rem;
+    padding-top: 15px;
 }
 
 @media (max-width: 480px) {
