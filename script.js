@@ -171,14 +171,15 @@ function showRagaSelection() {
 
 // Function to navigate back based on history
 function navigateBack() {
+    console.log('Before navigation, history:', JSON.stringify(navigationHistory));
+
     if (navigationHistory.length > 0) {
         const lastPage = navigationHistory.pop();
 
-        // 디버깅용 로그 - 실제 배포 시 제거 가능
-        console.log('Navigating back to:', lastPage.page, navigationHistory);
+        console.log('Navigating back to:', lastPage.page, 'Remaining history:', JSON.stringify(navigationHistory));
 
         if (lastPage.page === 'thaatSelection') {
-            showThaatSelection(true); // true는 뒤로가기 중임을 의미
+            showThaatSelection(true);
         } else if (lastPage.page === 'thaatBasedRaga') {
             showThaatBasedRagaSelection(lastPage.thaat, true);
         } else if (lastPage.page === 'timeSelection') {
@@ -186,30 +187,45 @@ function navigateBack() {
         } else if (lastPage.page === 'timeBasedRaga') {
             showTimeBasedRagaSelection(lastPage.timeSlot, false, true);
         } else if (lastPage.page === 'home') {
-            // 홈으로 돌아갈 때는 히스토리를 초기화
+            // 홈으로 돌아갈 때 히스토리 초기화 및 현재 시간대로 복원
             navigationHistory = [];
+            selectedTimeSlot = getCurrentTimeSlot();
             showRagaSelection();
         } else {
             // 예상치 못한 상태일 경우 히스토리 초기화하고 홈으로
+            console.log('Unexpected navigation state, returning to home');
             navigationHistory = [];
+            selectedTimeSlot = getCurrentTimeSlot();
             showRagaSelection();
         }
     } else {
-        // 히스토리가 비어있으면 홈으로
+        // 히스토리가 비어있으면 현재 시간대로 설정하고 홈으로
+        console.log('History empty, returning to home');
+        selectedTimeSlot = getCurrentTimeSlot();
         showRagaSelection();
     }
 }
 
-// Show selection of other time periods
+// Show selection of other time periods - fixed history management
 function showOtherTimesSelection(isBackNavigation = false) {
     const content = document.getElementById('content');
     const currentTimeSlot = getCurrentTimeSlot();
 
     // 뒤로가기가 아닐 때만 히스토리에 추가
     if (!isBackNavigation) {
-        navigationHistory.push({
-            page: 'home'
-        });
+        // 우선 현재 페이지가 어떤 페이지인지 확인
+        if (selectedTimeSlot === currentTimeSlot) {
+            // 현재 홈 화면이면 home으로 저장
+            navigationHistory.push({
+                page: 'home'
+            });
+        } else {
+            // 다른 시간대 화면이면 해당 시간대 정보 저장
+            navigationHistory.push({
+                page: 'timeBasedRaga',
+                timeSlot: selectedTimeSlot
+            });
+        }
     }
 
     let html = `<button class="btn back-btn">Back</button>`;
@@ -246,7 +262,7 @@ function showOtherTimesSelection(isBackNavigation = false) {
                 page: 'timeSelection'
             });
 
-            showTimeBasedRagaSelection(selectedTime, false);
+            showTimeBasedRagaSelection(selectedTime, false, false);
         });
     });
 }
@@ -458,11 +474,17 @@ function searchOnYoutube(raga, instrument) {
     }
 }
 
-// Initialize on page load
-window.addEventListener('load', () => {
+// Function to initialize the app
+function initApp() {
+    // Clear navigation history on startup
+    navigationHistory = [];
+
     updateCurrentTime();
     selectedTimeSlot = getCurrentTimeSlot();
     applyTimeBasedTheme();
     setInterval(updateCurrentTime, 60000); // Update time every minute
     showRagaSelection();
-}); 
+}
+
+// Initialize on page load
+window.addEventListener('load', initApp); 
