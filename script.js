@@ -1,48 +1,4 @@
-// Raga Sanskrit names
-const ragaSanskritNames = {
-    "Ahir Bhairav": "अहीर भैरव",
-    "Alhaiya": "अलैया",
-    "Alhaiya Bilawal": "अलैया बिलावल",
-    "Bageshri": "बागेश्री",
-    "Bhairav": "भैरव",
-    "Bhairavi": "भैरवी",
-    "Bhatiyar": "भटियार",
-    "Bihag": "बिहाग",
-    "Bilawal": "बिलावल",
-    "Brindavani Sarang": "बृंदावनी सारंग",
-    "Chandra": "चंद्र",
-    "Darbari": "दरबारी",
-    "Deshkar": "देशकर",
-    "Durga": "दुर्गा",
-    "Hameer": "हमीर",
-    "Hambeer": "हम्बीर",
-    "Jogiya": "जोगिया",
-    "Jhinjhoti": "झिंझोटी",
-    "Kanada": "कानड़ा",
-    "Kauns": "कौंस",
-    "Kamod": "कामोद",
-    "Kedar": "केदार",
-    "Lalit": "ललित",
-    "Madhyamad Sarang": "मध्यमाद सारंग",
-    "Malkauns": "मालकौंस",
-    "Marwa": "मारवा",
-    "Multani": "मुलतानी",
-    "Patdeep": "पटदीप",
-    "Paraj": "पराज",
-    "Poorvi": "पूर्वी",
-    "Puriya": "पुरिया",
-    "Ramkali": "रामकली",
-    "Shahana": "शहाना",
-    "Shuddh Kalyan": "शुद्ध कल्याण",
-    "Shuddh Sarang": "शुद्ध सारंग",
-    "Shree": "श्री",
-    "Sohini": "सोहिनी",
-    "Todi": "तोड़ी",
-    "Yaman": "यमन",
-    "Adana": "अदाना"
-};
-
-// Time-based Raga data (based on the provided image)
+// Time-based Raga data
 const ragaTimeMap = {
     // Midnight (12-2 AM)
     midnight: {
@@ -130,6 +86,20 @@ const ragaTimeMap = {
     }
 };
 
+// Thaat-based Raga classification
+const thaatMap = {
+    "Bilawal": ["Alhaiya Bilawal", "Deskar", "Shankara", "Bihag", "Durga"],
+    "Khamaj": ["Khamaj", "Des", "Tilak Kamod", "Jhinjhoti", "Rageshree"],
+    "Kafi": ["Kafi", "Bageshri", "Dhanashree", "Bhimpalasi", "Pilu"],
+    "Asavari": ["Asavari", "Jaunpuri", "Darbaari Kanhada", "Komal Rishab Asavari", "Gandhari"],
+    "Bhairav": ["Bhairav", "Ahir Bhairav", "Jogiya", "Gauri", "Nat Bhairav"],
+    "Bhairavi": ["Bhairavi", "Malkauns", "Sindhu Bhairavi", "Manj Khammaj", "Chandni Kedar"],
+    "Kalyan": ["Yaman", "Bhupali", "Shuddha Kalyan", "Kamod", "Chhayanat"],
+    "Marwa": ["Marwa", "Sohini", "Puriya", "Lalit", "Basant"],
+    "Poorvi": ["Poorvi", "Puriya Dhanashree", "Shree", "Paraj", "Gauri (Poorvi)"],
+    "Todi": ["Todi", "Miyan ki Todi", "Gujari Todi", "Multani", "Bilaskhani Todi"]
+};
+
 // Instruments list
 const instruments = [
     "Bansuri", "Dhrupad", "Esraj", "Rudra Veena",
@@ -138,6 +108,7 @@ const instruments = [
 
 // Currently selected raga
 let selectedRaga = '';
+let selectedTimeSlot = '';
 
 // Get current time slot based on hour
 function getCurrentTimeSlot() {
@@ -159,7 +130,7 @@ function getCurrentTimeSlot() {
 
 // Apply time-based theme
 function applyTimeBasedTheme() {
-    const timeSlot = getCurrentTimeSlot();
+    const timeSlot = selectedTimeSlot || getCurrentTimeSlot();
     const themeClass = ragaTimeMap[timeSlot].themeClass;
 
     // Remove all theme classes first
@@ -191,15 +162,142 @@ function updateCurrentTime() {
     document.getElementById('current-time').textContent = timeString;
 }
 
-// Show raga selection
+// Show raga selection for the current time
 function showRagaSelection() {
+    const currentTimeSlot = selectedTimeSlot || getCurrentTimeSlot();
+    showTimeBasedRagaSelection(currentTimeSlot);
+}
+
+// Show the ragas for a specific time slot
+function showTimeBasedRagaSelection(timeSlot) {
+    selectedTimeSlot = timeSlot;
+    applyTimeBasedTheme();
+
+    const content = document.getElementById('content');
+
+    let html = '';
+
+    // Add back button for non-home pages
+    if (timeSlot !== getCurrentTimeSlot()) {
+        html += `<button class="btn back-btn" id="home-btn">Home</button>`;
+    }
+
+    html += `<h2>${ragaTimeMap[timeSlot].name}</h2>`;
+    html += '<div class="raga-list">';
+
+    // Sort ragas alphabetically
+    const sortedRagas = [...ragaTimeMap[timeSlot].ragas].sort();
+
+    sortedRagas.forEach(raga => {
+        html += `<button class="btn raga-btn" data-raga="${raga}">${raga}</button>`;
+    });
+
+    html += '</div>';
+
+    // Add a divider
+    html += '<div class="divider"></div>';
+
+    // Add navigation buttons
+    html += '<div class="nav-buttons">';
+    html += '<button class="btn nav-btn" id="other-times-btn">Other Times</button>';
+    html += '<button class="btn nav-btn" id="by-thaat-btn">By Thaat</button>';
+    html += '</div>';
+
+    content.innerHTML = html;
+
+    // Add event listeners
+    document.querySelectorAll('.raga-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            selectedRaga = this.getAttribute('data-raga');
+            showInstrumentSelection();
+        });
+    });
+
+    // Handle home button click
+    const homeBtn = document.getElementById('home-btn');
+    if (homeBtn) {
+        homeBtn.addEventListener('click', function () {
+            selectedTimeSlot = getCurrentTimeSlot();
+            showRagaSelection();
+        });
+    }
+
+    // Handle Other Times button click
+    document.getElementById('other-times-btn').addEventListener('click', showOtherTimesSelection);
+
+    // Handle By Thaat button click
+    document.getElementById('by-thaat-btn').addEventListener('click', showThaatSelection);
+}
+
+// Show selection of other time periods
+function showOtherTimesSelection() {
     const content = document.getElementById('content');
     const currentTimeSlot = getCurrentTimeSlot();
 
-    let html = '<div class="raga-list">';
+    let html = `<button class="btn back-btn">Back</button>`;
+    html += `<h2>Select Time Period</h2>`;
+    html += '<div class="time-list">';
+
+    // Add all time slots except the current one
+    Object.keys(ragaTimeMap).forEach(timeSlot => {
+        if (timeSlot !== currentTimeSlot) {
+            html += `<button class="btn time-btn" data-time="${timeSlot}">${ragaTimeMap[timeSlot].name}</button>`;
+        }
+    });
+
+    html += '</div>';
+    content.innerHTML = html;
+
+    // Add event listener to back button
+    document.querySelector('.back-btn').addEventListener('click', showRagaSelection);
+
+    // Add event listeners to time buttons
+    document.querySelectorAll('.time-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const selectedTime = this.getAttribute('data-time');
+            showTimeBasedRagaSelection(selectedTime);
+        });
+    });
+}
+
+// Show Thaat selection
+function showThaatSelection() {
+    const content = document.getElementById('content');
+
+    let html = `<button class="btn back-btn">Back</button>`;
+    html += `<h2>Select Thaat</h2>`;
+    html += '<div class="thaat-list">';
+
+    // Add all Thaats
+    Object.keys(thaatMap).sort().forEach(thaat => {
+        html += `<button class="btn thaat-btn" data-thaat="${thaat}">${thaat}</button>`;
+    });
+
+    html += '</div>';
+    content.innerHTML = html;
+
+    // Add event listener to back button
+    document.querySelector('.back-btn').addEventListener('click', showRagaSelection);
+
+    // Add event listeners to thaat buttons
+    document.querySelectorAll('.thaat-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const selectedThaat = this.getAttribute('data-thaat');
+            showThaatBasedRagaSelection(selectedThaat);
+        });
+    });
+}
+
+// Show ragas based on selected Thaat
+function showThaatBasedRagaSelection(thaat) {
+    const content = document.getElementById('content');
+
+    let html = `<button class="btn back-btn">Back</button>`;
+    html += `<h2>${thaat} Thaat</h2>`;
+    html += '<div class="raga-list">';
 
     // Sort ragas alphabetically
-    const sortedRagas = [...ragaTimeMap[currentTimeSlot].ragas].sort();
+    const sortedRagas = [...thaatMap[thaat]].sort();
 
     sortedRagas.forEach(raga => {
         html += `<button class="btn raga-btn" data-raga="${raga}">${raga}</button>`;
@@ -207,6 +305,9 @@ function showRagaSelection() {
 
     html += '</div>';
     content.innerHTML = html;
+
+    // Add event listener to back button
+    document.querySelector('.back-btn').addEventListener('click', showThaatSelection);
 
     // Add event listeners to raga buttons
     document.querySelectorAll('.raga-btn').forEach(button => {
@@ -234,7 +335,13 @@ function showInstrumentSelection() {
     content.innerHTML = html;
 
     // Add event listener to back button
-    document.querySelector('.back-btn').addEventListener('click', showRagaSelection);
+    document.querySelector('.back-btn').addEventListener('click', function () {
+        if (selectedTimeSlot) {
+            showTimeBasedRagaSelection(selectedTimeSlot);
+        } else {
+            showRagaSelection();
+        }
+    });
 
     // Add event listeners to instrument buttons
     document.querySelectorAll('.instrument-btn').forEach(button => {
@@ -270,6 +377,7 @@ function searchOnYoutube(raga, instrument) {
 // Initialize on page load
 window.addEventListener('load', () => {
     updateCurrentTime();
+    selectedTimeSlot = getCurrentTimeSlot();
     applyTimeBasedTheme();
     setInterval(updateCurrentTime, 60000); // Update time every minute
     showRagaSelection();
