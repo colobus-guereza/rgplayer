@@ -197,9 +197,12 @@ function showTimeBasedRagaSelection(timeSlot) {
     // Add a divider
     html += '<div class="divider"></div>';
 
+    // Add discover title
+    html += '<p class="discover-title">Discover another raga</p>';
+
     // Add navigation buttons
     html += '<div class="nav-buttons">';
-    html += '<button class="btn nav-btn" id="other-times-btn">Other Times</button>';
+    html += '<button class="btn nav-btn" id="other-times-btn">From Other Times</button>';
     html += '<button class="btn nav-btn" id="by-thaat-btn">By Thaat</button>';
     html += '</div>';
 
@@ -241,7 +244,14 @@ function showOtherTimesSelection() {
     // Add all time slots except the current one
     Object.keys(ragaTimeMap).forEach(timeSlot => {
         if (timeSlot !== currentTimeSlot) {
-            html += `<button class="btn time-btn" data-time="${timeSlot}">${ragaTimeMap[timeSlot].name}</button>`;
+            const timeParts = ragaTimeMap[timeSlot].name.split(" (");
+            const timeName = timeParts[0];
+            const timeHours = timeParts[1].replace(")", "");
+
+            html += `<button class="btn time-btn" data-time="${timeSlot}">
+                <span class="time-name">${timeName}</span>
+                <span class="time-hours">${timeHours}</span>
+            </button>`;
         }
     });
 
