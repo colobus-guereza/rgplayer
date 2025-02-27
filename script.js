@@ -174,12 +174,13 @@ function showTimeBasedRagaSelection(timeSlot) {
     applyTimeBasedTheme();
 
     const content = document.getElementById('content');
+    const currentTimeSlot = getCurrentTimeSlot();
 
     let html = '';
 
     // Add back button for non-home pages
-    if (timeSlot !== getCurrentTimeSlot()) {
-        html += `<button class="btn back-btn" id="home-btn">Home</button>`;
+    if (timeSlot !== currentTimeSlot) {
+        html += `<button class="btn back-btn">Back</button>`;
     }
 
     html += `<h2>${ragaTimeMap[timeSlot].name}</h2>`;
@@ -194,17 +195,20 @@ function showTimeBasedRagaSelection(timeSlot) {
 
     html += '</div>';
 
-    // Add a divider
-    html += '<div class="divider"></div>';
+    // Only show navigation options on the home page (current time)
+    if (timeSlot === currentTimeSlot) {
+        // Add a divider
+        html += '<div class="divider"></div>';
 
-    // Add discover title
-    html += '<p class="discover-title">Discover another raga</p>';
+        // Add discover title
+        html += '<p class="discover-title">Discover another raga</p>';
 
-    // Add navigation buttons
-    html += '<div class="nav-buttons">';
-    html += '<button class="btn nav-btn" id="other-times-btn">In other times</button>';
-    html += '<button class="btn nav-btn" id="by-thaat-btn">By Thaat</button>';
-    html += '</div>';
+        // Add navigation buttons
+        html += '<div class="nav-buttons">';
+        html += '<button class="btn nav-btn" id="other-times-btn">From Other Times</button>';
+        html += '<button class="btn nav-btn" id="by-thaat-btn">By Thaat</button>';
+        html += '</div>';
+    }
 
     content.innerHTML = html;
 
@@ -216,20 +220,22 @@ function showTimeBasedRagaSelection(timeSlot) {
         });
     });
 
-    // Handle home button click
-    const homeBtn = document.getElementById('home-btn');
-    if (homeBtn) {
-        homeBtn.addEventListener('click', function () {
-            selectedTimeSlot = getCurrentTimeSlot();
+    // Handle back button click for non-home pages
+    if (timeSlot !== currentTimeSlot) {
+        document.querySelector('.back-btn').addEventListener('click', function () {
+            selectedTimeSlot = currentTimeSlot;
             showRagaSelection();
         });
     }
 
-    // Handle Other Times button click
-    document.getElementById('other-times-btn').addEventListener('click', showOtherTimesSelection);
+    // Add event listeners for navigation buttons on home page
+    if (timeSlot === currentTimeSlot) {
+        // Handle Other Times button click
+        document.getElementById('other-times-btn').addEventListener('click', showOtherTimesSelection);
 
-    // Handle By Thaat button click
-    document.getElementById('by-thaat-btn').addEventListener('click', showThaatSelection);
+        // Handle By Thaat button click
+        document.getElementById('by-thaat-btn').addEventListener('click', showThaatSelection);
+    }
 }
 
 // Show selection of other time periods
