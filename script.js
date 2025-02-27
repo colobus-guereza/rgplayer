@@ -106,9 +106,10 @@ const instruments = [
     "Santoor", "Sarangi", "Sarod", "Sitar", "Vocal"
 ];
 
-// Currently selected raga
+// Navigation state tracking
 let selectedRaga = '';
 let selectedTimeSlot = '';
+let navigationHistory = []; // Track where user came from
 
 // Get current time slot based on hour
 function getCurrentTimeSlot() {
@@ -168,14 +169,39 @@ function showRagaSelection() {
     showTimeBasedRagaSelection(currentTimeSlot);
 }
 
+// Function to navigate back based on history
+function navigateBack() {
+    if (navigationHistory.length > 0) {
+        const lastPage = navigationHistory.pop();
+        if (lastPage.page === 'thaatSelection') {
+            showThaatSelection();
+        } else if (lastPage.page === 'thaatBasedRaga') {
+            showThaatBasedRagaSelection(lastPage.thaat);
+        } else if (lastPage.page === 'timeSelection') {
+            showOtherTimesSelection();
+        } else if (lastPage.page === 'timeBasedRaga') {
+            showTimeBasedRagaSelection(lastPage.timeSlot, false);
+        } else {
+            showRagaSelection();
+        }
+    } else {
+        showRagaSelection();
+    }
+}
+
 // Show selection of other time periods
 function showOtherTimesSelection() {
     const content = document.getElementById('content');
     const currentTimeSlot = getCurrentTimeSlot();
 
+    // Save current page to navigation history
+    navigationHistory.push({
+        page: 'home'
+    });
+
     let html = `<button class="btn back-btn">Back</button>`;
     html += `<h2>Select Time Period</h2>`;
-    html += '<div class="time-list">';
+    html += '<div class="time-list content-scroll">';
 
     // Add all time slots except the current one
     Object.keys(ragaTimeMap).forEach(timeSlot => {
@@ -195,22 +221,21 @@ function showOtherTimesSelection() {
     content.innerHTML = html;
 
     // Add event listener to back button
-    document.querySelector('.back-btn').addEventListener('click', function () {
-        selectedTimeSlot = currentTimeSlot; // Reset to current time
-        showRagaSelection();
-    });
+    document.querySelector('.back-btn').addEventListener('click', navigateBack);
 
     // Add event listeners to time buttons
     document.querySelectorAll('.time-btn').forEach(button => {
         button.addEventListener('click', function () {
             const selectedTime = this.getAttribute('data-time');
-            showTimeBasedRagaSelection(selectedTime, false); // false indicates not current time
+            navigationHistory.push({
+                page: 'timeSelection'
+            });
+            showTimeBasedRagaSelection(selectedTime, false);
         });
     });
 }
 
 // Show the ragas for a specific time slot
-// Added isCurrentTime parameter to explicitly control navigation display
 function showTimeBasedRagaSelection(timeSlot, isCurrentTime = null) {
     selectedTimeSlot = timeSlot;
     applyTimeBasedTheme();
@@ -230,7 +255,7 @@ function showTimeBasedRagaSelection(timeSlot, isCurrentTime = null) {
     }
 
     html += `<h2>${ragaTimeMap[timeSlot].name}</h2>`;
-    html += '<div class="raga-list">';
+    html += '<div class="raga-list content-scroll">';
 
     // Sort ragas alphabetically
     const sortedRagas = [...ragaTimeMap[timeSlot].ragas].sort();
@@ -262,16 +287,19 @@ function showTimeBasedRagaSelection(timeSlot, isCurrentTime = null) {
     document.querySelectorAll('.raga-btn').forEach(button => {
         button.addEventListener('click', function () {
             selectedRaga = this.getAttribute('data-raga');
+            if (!isCurrentTime) {
+                navigationHistory.push({
+                    page: 'timeBasedRaga',
+                    timeSlot: timeSlot
+                });
+            }
             showInstrumentSelection();
         });
     });
 
     // Add event listener to back button for non-current time pages
     if (!isCurrentTime) {
-        document.querySelector('.back-btn').addEventListener('click', function () {
-            // For time-based selection, go back to time selection
-            showOtherTimesSelection();
-        });
+        document.querySelector('.back-btn').addEventListener('click', navigateBack);
     }
 
     // Add event listeners for navigation buttons on current time page
@@ -288,9 +316,14 @@ function showTimeBasedRagaSelection(timeSlot, isCurrentTime = null) {
 function showThaatSelection() {
     const content = document.getElementById('content');
 
+    // Save current page to navigation history
+    navigationHistory.push({
+        page: 'home'
+    });
+
     let html = `<button class="btn back-btn">Back</button>`;
     html += `<h2>Select Thaat</h2>`;
-    html += '<div class="thaat-list">';
+    html += '<div class="thaat-list content-scroll">';
 
     // Add all Thaats
     Object.keys(thaatMap).sort().forEach(thaat => {
@@ -301,7 +334,7 @@ function showThaatSelection() {
     content.innerHTML = html;
 
     // Add event listener to back button
-    document.querySelector('.back-btn').addEventListener('click', showRagaSelection);
+    document.querySelector('.back-btn').addEventListener('click', navigateBack);
 
     // Add event listeners to thaat buttons
     document.querySelectorAll('.thaat-btn').forEach(button => {
@@ -316,9 +349,14 @@ function showThaatSelection() {
 function showThaatBasedRagaSelection(thaat) {
     const content = document.getElementById('content');
 
+    // Record navigation history
+    navigationHistory.push({
+        page: 'thaatSelection'
+    });
+
     let html = `<button class="btn back-btn">Back</button>`;
     html += `<h2>${thaat} Thaat</h2>`;
-    html += '<div class="raga-list">';
+    html += '<div class="raga-list content-scroll">';
 
     // Sort ragas alphabetically
     const sortedRagas = [...thaatMap[thaat]].sort();
@@ -331,12 +369,16 @@ function showThaatBasedRagaSelection(thaat) {
     content.innerHTML = html;
 
     // Add event listener to back button
-    document.querySelector('.back-btn').addEventListener('click', showThaatSelection);
+    document.querySelector('.back-btn').addEventListener('click', navigateBack);
 
     // Add event listeners to raga buttons
     document.querySelectorAll('.raga-btn').forEach(button => {
         button.addEventListener('click', function () {
             selectedRaga = this.getAttribute('data-raga');
+            navigationHistory.push({
+                page: 'thaatBasedRaga',
+                thaat: thaat
+            });
             showInstrumentSelection();
         });
     });
@@ -348,7 +390,7 @@ function showInstrumentSelection() {
 
     let html = `<button class="btn back-btn">Back</button>`;
     html += `<h2>${selectedRaga}</h2>`;
-    html += '<div class="instrument-list">';
+    html += '<div class="instrument-list content-scroll">';
 
     // Instruments are already sorted alphabetically in the array
     instruments.forEach(instrument => {
@@ -359,13 +401,7 @@ function showInstrumentSelection() {
     content.innerHTML = html;
 
     // Add event listener to back button
-    document.querySelector('.back-btn').addEventListener('click', function () {
-        if (selectedTimeSlot) {
-            showTimeBasedRagaSelection(selectedTimeSlot);
-        } else {
-            showRagaSelection();
-        }
-    });
+    document.querySelector('.back-btn').addEventListener('click', navigateBack);
 
     // Add event listeners to instrument buttons
     document.querySelectorAll('.instrument-btn').forEach(button => {
